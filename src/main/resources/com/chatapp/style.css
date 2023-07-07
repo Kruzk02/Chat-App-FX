@@ -1,0 +1,23 @@
+
+.sendButton:focused{
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 3px, 3px, 2px, 1px;
+}
+.textField:focused {
+    -fx-highlight-fill: -fx-accent;
+    -fx-highlight-text-fill: white;
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
+        linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 3, 2;
+    -fx-prompt-text-fill: transparent;
+}
+.scrollPane:focused {
+    -fx-background-color: derive(-fx-box-border,30%), linear-gradient(to bottom, derive(-fx-base,-3%), derive(-fx-base,5%) 50%, derive(-fx-base,-3%));
+    -fx-background-insets: 0, 1 0 1 0;
+}
+.scrollPane:vertical:focused {
+    -fx-background-color: derive(-fx-box-border,30%), linear-gradient(to right, derive(-fx-base,-3%), derive(-fx-base,5%) 50%, derive(-fx-base,-3%));
+    -fx-background-insets: 0, 0 1 0 1;
+}
