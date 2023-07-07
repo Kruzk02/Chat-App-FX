@@ -1,5 +1,10 @@
 package com.chatapp.Client;
 
+import javafx.scene.layout.VBox;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +16,8 @@ public class Client{
     private BufferedReader reader;
     private PrintWriter writer;
 
+    private static Logger logger = LoggerFactory.getLogger(Client.class);
+
     public Client(){
         try{
             socket = new Socket("localhost",8080);
@@ -18,7 +25,7 @@ public class Client{
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(),true);
         } catch (Exception e) {
-            System.out.println("ERROR:"+e.getMessage());
+            logger.error("ERROR: "+e.getMessage());
         }
     }
     public void sendMessage(String message){
@@ -29,8 +36,26 @@ public class Client{
             String response = reader.readLine();
             System.out.println("Receive message from Server:"+response);
         } catch (IOException e) {
-            System.out.println("ERROR:"+e.getMessage());
+            logger.error("ERROR SendMessage: "+e.getMessage());
         }
+    }
+    public void receiveMessage(VBox vBox){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (socket.isConnected()){
+                    try {
+                        String messageFromOther = reader.readLine();
+                        ClientController.receiveMessage(messageFromOther,vBox);
+                    } catch (Exception e) {
+                        logger.error("ERROR AT RM: "+e.getMessage());
+                        close();
+                        break;
+                    }
+                }
+            }
+        });
+        thread.start();
     }
     public void close(){
         try{
