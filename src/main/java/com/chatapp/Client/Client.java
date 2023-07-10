@@ -1,5 +1,6 @@
 package com.chatapp.Client;
 
+import com.chatapp.DAO.Message;
 import javafx.scene.layout.VBox;
 
 import org.slf4j.Logger;
@@ -17,6 +18,9 @@ public class Client{
     private PrintWriter writer;
 
     private static Logger logger = LoggerFactory.getLogger(Client.class);
+
+    String sender = "Client";
+    String receiver = "Server";
 
     public Client(){
         try{
@@ -39,6 +43,15 @@ public class Client{
             logger.error("ERROR SendMessage: "+e.getMessage());
         }
     }
+
+    private Message receiverObject(String receiver, String content){
+        Message message = new Message();
+        message.setReceiver(receiver);
+        message.setContent(content);
+
+        return message;
+    }
+
     public void receiveMessage(VBox vBox){
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -57,6 +70,8 @@ public class Client{
         });
         thread.start();
     }
+
+
     public void close(){
         try{
             socket.close();

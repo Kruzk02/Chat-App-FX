@@ -1,10 +1,11 @@
 package com.chatapp.Client;
 
+import com.chatapp.DAO.Message;
+import com.chatapp.DAO.MessageDAO;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -19,6 +20,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ClientController implements Initializable {
@@ -28,7 +31,10 @@ public class ClientController implements Initializable {
     @FXML ScrollPane scrollPane;
 
     Client client;
+    MessageDAO messageDAO = new MessageDAO();
 
+    String sender = "Client";
+    String receiver = "Server";
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         client = new Client();
@@ -41,13 +47,18 @@ public class ClientController implements Initializable {
         });
         sendButton.setDefaultButton(true);
         client.receiveMessage(vBox);
+
+        displaySavedMessage();
     }
 
     public void sendMessage() {
         String message = textField.getText();
+        Message messageObject = createMessageObject(sender,receiver,message);
+
         if(message!=null){
-            messageBox(message);
+            sendMessageBox(message);
             sendInBackground(message);
+            messageDAO.saveMessage(messageObject);
             textField.clear();
         }
     }
@@ -69,7 +80,7 @@ public class ClientController implements Initializable {
         new Thread(sendTask).start();
     }
 
-    public void messageBox(String message){
+    public void sendMessageBox(String message){
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.CENTER_RIGHT);
         hBox.setPadding(new Insets(5,10,5,10));
@@ -83,7 +94,9 @@ public class ClientController implements Initializable {
         hBox.getChildren().add(textFlow);
         vBox.getChildren().add(hBox);
     }
+
     public static void receiveMessage(String message,VBox vBox){
+
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.setPadding(new Insets(5,10,5,10));
@@ -101,5 +114,23 @@ public class ClientController implements Initializable {
                 vBox.getChildren().add(hBox);
             }
         });
+    }
+
+    public Message createMessageObject(String sender,String receiver,String content){
+        Message message = new Message();
+        message.setSender(sender);
+        message.setReceiver(receiver);
+        message.setContent(content);
+
+        return message;
+    }
+
+    public void displaySavedMessage(){
+        List<Message> savedMessage = messageDAO.getMessages(sender,receiver);
+
+        for(Message message: savedMessage){
+            receiveMessage(message.getContent(),vBox);
+            sendMessageBox(message.getContent());
+        }
     }
 }

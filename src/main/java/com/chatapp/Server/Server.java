@@ -1,5 +1,6 @@
 package com.chatapp.Server;
 
+import com.chatapp.DAO.Message;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,15 @@ public class Server{
         });
         thread.start();
     }
+
+    public Message receiverObject(String receiver, String content){
+        Message message = new Message();
+        message.setReceiver(receiver);
+        message.setContent(content);
+
+        return message;
+    }
+
     public void close(){
         try{
             clientSocket.close();

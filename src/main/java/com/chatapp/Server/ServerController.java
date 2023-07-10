@@ -1,5 +1,7 @@
 package com.chatapp.Server;
 
+import com.chatapp.DAO.Message;
+import com.chatapp.DAO.MessageDAO;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,6 +23,7 @@ import javafx.scene.text.TextFlow;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ServerController implements Initializable {
@@ -30,6 +33,10 @@ public class ServerController implements Initializable {
     @FXML ScrollPane scrollPane;
 
     Server server;
+    MessageDAO messageDAO = new MessageDAO();
+
+    String sender = "Server";
+    String receiver = "Client";
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
@@ -46,15 +53,18 @@ public class ServerController implements Initializable {
 
         server.receiveMessage(vBox);
         sendButton.setDefaultButton(true);
-    }
-    public void connectToServer(){
 
+        displaySavedMessage();
     }
+
     public void sendMessage(ActionEvent event) {
         String message = textField.getText();
+        Message messageObject = createMessageObject(sender,receiver,message);
+
         if(message!=null){
-            messageBox(message);
+            sendMessageBox(message);
             sendInBackground(message);
+            messageDAO.saveMessage(messageObject);
             textField.clear();
         }
     }
@@ -75,7 +85,8 @@ public class ServerController implements Initializable {
 
         new Thread(sendTask).start();
     }
-    public void messageBox(String message){
+
+    public void sendMessageBox(String message){
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.CENTER_RIGHT);
         hBox.setPadding(new Insets(5,5,5,5));
@@ -89,6 +100,7 @@ public class ServerController implements Initializable {
         hBox.getChildren().add(textFlow);
         vBox.getChildren().add(hBox);
     }
+
     public static void receiveMessage(String message,VBox vBox){
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.CENTER_LEFT);
@@ -107,5 +119,23 @@ public class ServerController implements Initializable {
                 vBox.getChildren().add(hBox);
             }
         });
+    }
+
+    public Message createMessageObject(String sender,String receiver,String content){
+        Message message = new Message();
+        message.setSender(sender);
+        message.setReceiver(receiver);
+        message.setContent(content);
+
+        return message;
+    }
+
+    public void displaySavedMessage(){
+        List<Message> savedMessage = messageDAO.getMessages(sender,receiver);
+
+        for(Message message: savedMessage){
+            receiveMessage(message.getContent(),vBox);
+            sendMessageBox(message.getContent());
+        }
     }
 }
